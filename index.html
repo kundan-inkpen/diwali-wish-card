@@ -56,7 +56,21 @@
   @keyframes ring{0%{transform:scale(.5);opacity:1}100%{transform:scale(1.5);opacity:0}}
   .tap-hint{margin-top:18px;font-size:16px;color:var(--gold2);animation:bob 1.4s ease-in-out infinite}
   @keyframes bob{50%{transform:translateY(-6px)}}
-  .intro-brand{position:absolute;bottom:calc(22px + env(safe-area-inset-bottom));display:flex;align-items:center;gap:8px;font-size:13px;opacity:.85}
+  #intro{padding-top:calc(78px + env(safe-area-inset-top));padding-bottom:calc(150px + env(safe-area-inset-bottom))}
+  .intro-top{position:absolute;top:calc(14px + env(safe-area-inset-top));left:16px;right:16px;max-width:460px;margin:0 auto;
+    display:flex;align-items:center;justify-content:space-between;text-align:left}
+  .intro-promo{position:absolute;left:14px;right:14px;bottom:calc(16px + env(safe-area-inset-bottom));max-width:440px;margin:0 auto;
+    display:flex;align-items:center;gap:12px;padding:12px 12px 12px 14px;border-radius:18px;text-align:left;text-decoration:none;color:var(--text);
+    background:linear-gradient(135deg,rgba(255,138,0,.22),rgba(194,24,91,.22));border:1px solid rgba(255,180,60,.55);
+    box-shadow:0 0 24px rgba(255,140,0,.2);overflow:hidden;animation:promoIn .8s .6s cubic-bezier(.2,.9,.3,1.2) both}
+  .intro-promo::after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;transform:skewX(-20deg);
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent);animation:sheen 3.2s ease-in-out infinite}
+  .intro-promo .art{width:46px;height:46px;flex:none;border-radius:12px;display:grid;place-items:center;font-size:24px;
+    background:radial-gradient(circle,#ffd36b,#ff6a00 70%,#a3133d);box-shadow:0 0 14px rgba(255,150,40,.5)}
+  .intro-promo .txt{flex:1;min-width:0;font-size:12px;line-height:1.4;opacity:.92}
+  .intro-promo .txt b{display:block;font-size:14px;color:var(--gold2)}
+  @keyframes promoIn{from{transform:translateY(140%)}}
+  @media (max-height:620px){.intro-sub{margin-bottom:10px}.intro-diya{width:160px}}
   .flash{position:fixed;inset:0;z-index:60;pointer-events:none;opacity:0;
     background:radial-gradient(circle at 50% 55%,#fff7d6 0%,rgba(255,190,80,.7) 30%,rgba(255,140,0,0) 70%)}
   .flash.go{animation:flash 1.3s ease-out}
@@ -209,12 +223,23 @@
 
 <!-- ============ INTRO ============ -->
 <section id="intro">
-  <div class="intro-kicker">✨ Diwali Surprise ✨</div>
+  <div class="intro-top">
+    <a class="brand" href="#" data-app data-src="intro_header">
+      <span class="logo">ॐ</span>
+      <span>Daily Bhakti<small>Aarti · Bhajan · Panchang</small></span>
+    </a>
+    <a class="pill" href="#" data-app data-src="intro_header">Get App</a>
+  </div>
+  <div class="intro-kicker">✨ Daily Bhakti Diwali Surprise ✨</div>
   <h1 class="intro-title" id="introTitle">आपके लिए एक<br><b>दिवाली सरप्राइज़</b> है!</h1>
   <p class="intro-sub" id="introSub">Someone has a special wish for you</p>
   <button class="intro-diya diya" id="introDiya" aria-label="Light the diya"></button>
   <div class="tap-hint" id="tapHint">👆 दीया जलाइए · Tap to light the diya</div>
-  <div class="intro-brand"><span class="logo" style="width:26px;height:26px;font-size:15px;border-radius:8px">ॐ</span> Presented by <b>Daily Bhakti</b></div>
+  <a class="intro-promo" href="#" data-app data-src="intro_promo">
+    <span class="art">🪷</span>
+    <span class="txt"><b>इस दिवाली, सही विधि से लक्ष्मी पूजा 🙏</b>Puja vidhi, Lakshmi Aarti & shubh muhurat — free on Daily Bhakti</span>
+    <span class="pill">Download</span>
+  </a>
 </section>
 
 <!-- ============ MAIN ============ -->
