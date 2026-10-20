@@ -268,12 +268,11 @@ const state = {
 const isRecipient = !!state.from;
 
 /* ================= mode: ?create=true shows the card maker, otherwise the app download button ================= */
-// TODO: replace with the real Daily Bhakti Play Store / OneLink URL
-const APP_URL = 'https://play.google.com/store/search?q=daily%20bhakti&c=apps';
+const APP_URL = 'https://play.google.com/store/apps/details?id=co.dailybhakti.app&utm_source=diwali_card';
 const createMode = params.get('create') === 'true';
 $('#create').hidden = !createMode;
 $('#getApp').hidden = createMode;
-$('#getApp').href = APP_URL + '&utm_source=diwali_card&utm_medium=web&utm_campaign=diwali2026';
+$('#getApp').href = APP_URL;
 $('#getApp').addEventListener('click', ()=>track('app_download_click',{recipient:isRecipient}));
 
 /* ================= artwork ================= */
