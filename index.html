@@ -128,6 +128,15 @@
   .btn-wa{background:#25D366;color:#fff;box-shadow:0 8px 26px rgba(37,211,102,.35);animation:pulse 2.2s infinite}
   @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(37,211,102,.5)}60%{box-shadow:0 0 0 14px rgba(37,211,102,0)}}
   .btn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+  [hidden]{display:none!important}
+  .btn-app{position:relative;overflow:hidden;text-align:center;flex-direction:column;gap:2px;line-height:1.35;padding:16px 18px;margin-bottom:18px;
+    background:linear-gradient(135deg,#ffe08a,#ff9d00 55%,#ff6a00);color:#2a0a00;box-shadow:0 10px 30px rgba(255,140,0,.45);animation:pulseApp 2.2s infinite}
+  .btn-app b{font-family:'Tiro Devanagari Hindi',serif;font-size:18px;font-weight:400}
+  .btn-app span{font-size:12.5px;font-weight:500;opacity:.8}
+  .btn-app::after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;transform:skewX(-20deg);
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.7),transparent);animation:sheen 2.6s ease-in-out infinite}
+  @keyframes sheen{0%{left:-60%}60%,100%{left:130%}}
+  @keyframes pulseApp{0%,100%{box-shadow:0 0 0 0 rgba(255,157,0,.55)}60%{box-shadow:0 0 0 14px rgba(255,157,0,0)}}
   .btn-ghost{background:rgba(255,255,255,.07);color:var(--text);border:1px solid rgba(255,211,107,.3);font-size:14px;padding:13px}
   .micro{text-align:center;font-size:12px;opacity:.7;margin:12px 0 0}
   .lit-count{display:none;text-align:center;margin-top:12px;font-size:13px;color:var(--gold2)}
@@ -212,6 +221,12 @@
     <div class="lit-count" id="litCount"></div>
   </section>
 
+  <!-- shown when not in create mode -->
+  <a class="btn btn-app rv" id="getApp" style="--d:.8s" target="_blank" rel="noopener" hidden>
+    <b>⬇️ अपना Personalised Wish Card बनाने के लिए Daily Bhakti App डाउनलोड करें</b>
+    <span>Free on Google Play</span>
+  </a>
+
   <footer class="footer">🪔 Wishing you a blessed Deepawali 🪔</footer>
 </div>
 
@@ -251,6 +266,15 @@ const state = {
   m:    Math.min(WISHES.length-1, Math.max(0, parseInt(params.get('m'))||0)),
 };
 const isRecipient = !!state.from;
+
+/* ================= mode: ?create=true shows the card maker, otherwise the app download button ================= */
+// TODO: replace with the real Daily Bhakti Play Store / OneLink URL
+const APP_URL = 'https://play.google.com/store/search?q=daily%20bhakti&c=apps';
+const createMode = params.get('create') === 'true';
+$('#create').hidden = !createMode;
+$('#getApp').hidden = createMode;
+$('#getApp').href = APP_URL + '&utm_source=diwali_card&utm_medium=web&utm_campaign=diwali2026';
+$('#getApp').addEventListener('click', ()=>track('app_download_click',{recipient:isRecipient}));
 
 /* ================= artwork ================= */
 function diyaSVG(){
