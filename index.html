@@ -30,14 +30,14 @@
   /* ---------- sky ---------- */
   .stars span{position:fixed;width:2px;height:2px;border-radius:50%;background:#fff;opacity:.2;animation:tw 3s ease-in-out infinite alternate;z-index:0}
   @keyframes tw{to{opacity:.95;transform:scale(1.4)}}
-  #fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
-  .lantern{position:fixed;bottom:-90px;z-index:1;pointer-events:none;width:var(--s);height:calc(var(--s)*1.35);
-    border-radius:40% 40% 30% 30%;
-    background:radial-gradient(ellipse at 50% 60%,#fff1a8 0%,#ffb03a 35%,#e8501c 80%);
-    box-shadow:0 0 25px 8px rgba(255,150,40,.45);opacity:.85;
-    animation:rise var(--t) linear var(--dl) infinite, sway 3s ease-in-out infinite alternate}
-  .lantern::after{content:"";position:absolute;left:30%;right:30%;bottom:-4px;height:5px;background:#5a1f08;border-radius:2px}
-  @keyframes rise{0%{transform:translateY(0)}100%{transform:translateY(calc(-100vh - 200px))}}
+  #fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:3}
+  .ground{position:fixed;left:0;right:0;bottom:0;height:24vh;z-index:0;pointer-events:none;
+    background:radial-gradient(ellipse at 50% 100%,rgba(255,130,30,.28),rgba(255,90,0,.08) 55%,transparent 75%)}
+  .float-diya{position:fixed;bottom:-70px;z-index:1;pointer-events:none;width:var(--s);
+    filter:drop-shadow(0 0 10px rgba(255,170,50,.85));
+    animation:rise var(--t) linear infinite, sway 3s ease-in-out infinite alternate}
+  .float-diya svg{display:block;width:100%}
+  @keyframes rise{0%{transform:translateY(0);opacity:0}8%{opacity:1}80%{opacity:.85}100%{transform:translateY(calc(-100vh - 160px));opacity:0}}
   @keyframes sway{to{margin-left:28px}}
 
   /* ---------- intro ---------- */
@@ -146,7 +146,7 @@
     background:#fff6e0;color:#2a0a00;font-weight:600;font-size:14px;padding:12px 18px;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.4);max-width:90vw;text-align:center}
   .toast.show{transform:translate(-50%,0)}
 
-  @media (prefers-reduced-motion:reduce){.lantern,.rangoli,.toran .swing{animation:none}}
+  @media (prefers-reduced-motion:reduce){.float-diya,.rangoli,.toran .swing{animation:none}}
 </style>
 </head>
 <body class="locked">
@@ -162,7 +162,8 @@
 
 <div class="stars" id="stars"></div>
 <canvas id="fx"></canvas>
-<div id="lanterns"></div>
+<div class="ground"></div>
+<div id="floatDiyas"></div>
 <div class="flash" id="flash"></div>
 
 <!-- ============ INTRO ============ -->
@@ -367,9 +368,11 @@ $('#previewBtn').onclick = ()=>{ livePreview(true); $('#card').scrollIntoView({b
   const st=$('#stars'); let h='';
   for(let i=0;i<70;i++) h+=`<span style="left:${rand(0,100)}%;top:${rand(0,100)}%;animation-delay:${rand(0,3)}s;animation-duration:${rand(2,5)}s"></span>`;
   st.innerHTML=h;
-  const ln=$('#lanterns'); h='';
-  for(let i=0;i<7;i++) h+=`<div class="lantern" style="left:${rand(2,92)}%;--s:${rand(16,30)}px;--t:${rand(16,28)}s;--dl:${-rand(0,25)}s;animation-delay:${-rand(0,25)}s,${-rand(0,3)}s"></div>`;
-  ln.innerHTML=h;
+  // diyas floating up from the ground
+  const fd=$('#floatDiyas'); h='';
+  for(let i=0;i<10;i++) h+=`<div class="float-diya diya lit" style="left:${rand(2,90)}%;--s:${rand(26,46)}px;--t:${rand(14,24)}s;animation-delay:${-rand(0,24)}s,${-rand(0,3)}s">${diyaSVG()}</div>`;
+  fd.innerHTML=h;
+  fd.querySelectorAll('.fl').forEach(f=>f.style.animationDelay=(-rand(0,1.5))+'s');
 })();
 
 /* ================= sound ================= */
@@ -400,24 +403,19 @@ $('#soundBtn').onclick=()=>{ soundOn=!soundOn; $('#soundBtn').textContent=soundO
 const cv=$('#fx'), ctx=cv.getContext('2d'); let W,H;
 function resize(){ const dpr=Math.min(devicePixelRatio||1,2); W=innerWidth; H=innerHeight; cv.width=W*dpr; cv.height=H*dpr; ctx.setTransform(dpr,0,0,dpr,0,0); }
 resize(); addEventListener('resize',resize);
-const COLORS=[[255,211,107],[255,150,30],[255,77,109],[167,139,250],[61,220,151],[90,200,255],[255,255,255],[255,120,200]];
 const rockets=[], parts=[]; const G=.12;
 function launch(tx,ty){
   ty=Math.max(60,Math.min(ty,H*.7)); const sx=tx+rand(-60,60), vy=-Math.sqrt(2*G*(H-ty));
-  rockets.push({x:sx,y:H+5,vx:(tx-sx)/(-vy/G),vy,c:pick(COLORS)});
+  rockets.push({x:sx,y:H+5,vx:(tx-sx)/(-vy/G),vy});
 }
-function explode(x,y,c){
-  pop(); const type=pick(['peony','peony','ring','glitter','heart','double']); const c2=pick(COLORS);
-  const add=(vx,vy,col,o={})=>parts.push({x,y,vx,vy,c:col,life:1,decay:o.decay||rand(.011,.02),r:o.r||rand(1.4,2.4),fl:o.fl});
-  if(type==='heart'){
-    for(let i=0;i<70;i++){ const t=i/70*Math.PI*2, hx=16*Math.pow(Math.sin(t),3), hy=13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t); add(hx*.2,-hy*.2,[255,77,109],{decay:.013}); }
-  } else if(type==='ring'){
-    for(let i=0;i<64;i++){ const a=i/64*Math.PI*2; add(Math.cos(a)*4,Math.sin(a)*4,c,{decay:.014}); }
-  } else {
-    const n = type==='glitter'?110:95;
-    for(let i=0;i<n;i++){ const a=rand(0,Math.PI*2), sp=rand(.5,1)*rand(2.2,5.2);
-      add(Math.cos(a)*sp,Math.sin(a)*sp, type==='double'&&i%2?c2:(type==='glitter'?[255,215,120]:c), {fl:type==='glitter'}); }
-  }
+const HEARTS=[[255,77,109],[255,40,80],[255,120,200],[255,211,107],[255,150,30],[230,90,255]];
+function explode(x,y){
+  pop(); const c=pick(HEARTS), c2=pick(HEARTS), k=rand(.17,.25);
+  const add=(vx,vy,col,o={})=>parts.push({x,y,vx,vy,c:col,life:1,decay:o.decay||.013,r:o.r||rand(1.6,2.4),fl:o.fl});
+  const heart=t=>[16*Math.pow(Math.sin(t),3), 13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t)];
+  for(let i=0;i<80;i++){ const [hx,hy]=heart(i/80*Math.PI*2); add(hx*k,-hy*k,c); }               // outer heart
+  for(let i=0;i<44;i++){ const [hx,hy]=heart(i/44*Math.PI*2); add(hx*k*.55,-hy*k*.55,c2,{r:1.5}); } // inner heart
+  for(let i=0;i<24;i++){ const a=rand(0,Math.PI*2), sp=rand(.3,1.4); add(Math.cos(a)*sp,Math.sin(a)*sp,[255,240,200],{fl:true,r:1.2,decay:.02}); } // glitter core
 }
 function frame(){
   ctx.globalCompositeOperation='destination-out'; ctx.fillStyle='rgba(0,0,0,.22)'; ctx.fillRect(0,0,W,H);
@@ -426,7 +424,7 @@ function frame(){
     const r=rockets[i]; r.x+=r.vx; r.y+=r.vy; r.vy+=G;
     ctx.fillStyle='rgba(255,220,150,.95)'; ctx.beginPath(); ctx.arc(r.x,r.y,2,0,7); ctx.fill();
     if(Math.random()<.7) parts.push({x:r.x,y:r.y,vx:rand(-.3,.3),vy:rand(.5,1.2),c:[255,180,80],life:.7,decay:.04,r:1.2});
-    if(r.vy>=-.5){ explode(r.x,r.y,r.c); rockets.splice(i,1); }
+    if(r.vy>=-.5){ explode(r.x,r.y); rockets.splice(i,1); }
   }
   for(let i=parts.length-1;i>=0;i--){
     const p=parts[i]; p.vx*=.985; p.vy=p.vy*.985+.045; p.x+=p.vx; p.y+=p.vy; p.life-=p.decay;
@@ -438,7 +436,14 @@ function frame(){
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
-function finale(n=6){ for(let i=0;i<n;i++) setTimeout(()=>launch(rand(W*.15,W*.85),rand(H*.12,H*.4)), i*220); }
+// aim bursts at the top part of the card; fall back to the upper sky if it's scrolled away
+function cardTarget(){
+  const r=$('#card').getBoundingClientRect();
+  const y0=Math.max(r.top+30,70), y1=Math.min(r.top+r.height*.4,H*.6);
+  if(y1-y0<40) return [rand(W*.15,W*.85), rand(H*.12,H*.35)];
+  return [rand(r.left+60,r.right-60), rand(y0,y1)];
+}
+function finale(n=6){ for(let i=0;i<n;i++) setTimeout(()=>launch(...cardTarget()), i*260); }
 
 // tap anywhere for fireworks; sparkle trail on move
 document.addEventListener('pointerdown', e=>{
@@ -470,7 +475,7 @@ $('#introDiya').addEventListener('click', ()=>{
 function startShow(){
   const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
   (function loop(){
-    if(!document.hidden) launch(rand(W*.1,W*.9), rand(H*.1,H*.45));
+    if(!document.hidden) launch(...cardTarget());
     setTimeout(loop, reduce?6000:rand(1300,2600));
   })();
 }
